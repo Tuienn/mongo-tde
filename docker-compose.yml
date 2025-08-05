@@ -1,30 +1,27 @@
 # Docker Compose file for MongoDB Enterprise with TDE enabled.
 # Version: 8.0.12
+# Updated to include replica set configuration required for TDE.
 
 version: "3.8"
 
 services:
   mongodb-tde:
-    # Use the official MongoDB Enterprise Server image
-    image: mongodb/mongodb-enterprise-server:7.0.6
+    image: mongodb/mongodb-enterprise-server:8.0.12
     container_name: mongodb-tde-instance
     restart: always
     ports:
-      # Map the default MongoDB port to the host
       - "27017:27017"
     environment:
-      # Set root user credentials.
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: 123456789
     volumes:
-      # Mount the host data directory to the container's data directory
       - ./data:/data/db
-      # Mount the encryption key file as read-only.
-      # The path inside the container must match the --encryptionKeyFile argument.
       - ./keys/mongodb-tde.key:/etc/mongod/encryption.key:ro
     command:
-      # Command to start mongod with TDE enabled and authentication
+      # Command to start mongod with TDE, authentication, and replica set enabled.
       - "mongod"
       - "--auth"
+      - "--replSet"
+      - "rs0"
       - "--enableEncryption"
       - "--encryptionKeyFile=/etc/mongod/encryption.key"

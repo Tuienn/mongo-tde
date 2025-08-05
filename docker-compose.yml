@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  mongodb-enterprise:
+    image: mongodb/mongodb-enterprise-server:8.0.12-ubi9
+    container_name: mongodb-enterprise-tde
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123456
+      MONGO_INITDB_DATABASE: testdb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data:/data/db
+      - ./configdb:/data/configdb
+      - ./encryption:/etc/mongodb/encryption
+      - ./scripts:/docker-entrypoint-initdb.d
+    command: >
+      mongod
+      --auth
+      --enableEncryption
+      --encryptionKeyFile /etc/mongodb/encryption/mongodb-keyfile
+      --encryptionCipherMode AES256-CBC
+      --bind_ip_all
+    networks:
+      - mongodb-network
+
+networks:
+  mongodb-network:
+    driver: bridge

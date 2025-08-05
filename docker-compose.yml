@@ -6,7 +6,7 @@ version: "3.8"
 services:
   mongodb-tde:
     # Use the official MongoDB Enterprise Server image
-    image: mongodb/mongodb-enterprise-server:8.0.12-ubuntu2204
+    image: mongodb/mongodb-enterprise-server:7.0.6-ubuntu2204
     container_name: mongodb-tde-instance
     restart: always
     ports:

@@ -1,31 +1,30 @@
+# Docker Compose file for MongoDB Enterprise with TDE enabled.
+# Version: 8.0.12
+
 version: "3.8"
 
 services:
-  mongodb-enterprise:
-    image: mongodb/mongodb-enterprise-server:8.0.12-ubi9
-    container_name: mongodb-enterprise-tde
-    restart: unless-stopped
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: admin123456
-      MONGO_INITDB_DATABASE: testdb
+  mongodb-tde:
+    # Use the official MongoDB Enterprise Server image
+    image: mongodb/mongodb-enterprise-server:8.0.12
+    container_name: mongodb-tde-instance
+    restart: always
     ports:
+      # Map the default MongoDB port to the host
       - "27017:27017"
+    environment:
+      # Set root user credentials.
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: 123456789
     volumes:
+      # Mount the host data directory to the container's data directory
       - ./data:/data/db
-      - ./configdb:/data/configdb
-      - ./encryption:/etc/mongodb/encryption
-      - ./scripts:/docker-entrypoint-initdb.d
-    command: >
-      mongod
-      --auth
-      --enableEncryption
-      --encryptionKeyFile /etc/mongodb/encryption/mongodb-keyfile
-      --encryptionCipherMode AES256-CBC
-      --bind_ip_all
-    networks:
-      - mongodb-network
-
-networks:
-  mongodb-network:
-    driver: bridge
+      # Mount the encryption key file as read-only.
+      # The path inside the container must match the --encryptionKeyFile argument.
+      - ./keys/mongodb-tde.key:/etc/mongod/encryption.key:ro
+    command:
+      # Command to start mongod with TDE enabled and authentication
+      - "mongod"
+      - "--auth"
+      - "--enableEncryption"
+      - "--encryptionKeyFile=/etc/mongod/encryption.key"

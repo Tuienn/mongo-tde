@@ -1,45 +1,34 @@
 #!/bin/bash
 
-# MongoDB Encryption Keyfile Generator
-# This script creates a keyfile for MongoDB Transparent Data Encryption (TDE)
+# This script generates a local encryption key for MongoDB TDE.
+# The key is a 32-byte (256-bit) random string, base64 encoded.
 
-set -e
+# --- Configuration ---
+KEY_DIR="keys"
+KEY_FILE_NAME="mongodb-tde.key"
+KEY_FILE_PATH="${KEY_DIR}/${KEY_FILE_NAME}"
 
-echo "MongoDB TDE Keyfile Generator"
-echo "=============================="
+# --- Main Logic ---
+echo "--- MongoDB TDE Key Generation Script ---"
 
-# Create encryption directory if it doesn't exist
-mkdir -p encryption
-
-# Keyfile path
-KEYFILE_PATH="encryption/mongodb-keyfile"
-
-# Check if keyfile already exists
-if [ -f "$KEYFILE_PATH" ]; then
-    read -p "Keyfile already exists. Do you want to overwrite it? (y/N): " confirm
-    if [[ ! $confirm =~ ^[Yy]$ ]]; then
-        echo "Keyfile generation cancelled."
-        exit 0
-    fi
+# Create the key directory if it does not exist
+if [ ! -d "$KEY_DIR" ]; then
+  echo "Creating directory for key file: ${KEY_DIR}"
+  mkdir -p "$KEY_DIR"
 fi
 
-# Generate a 96-byte base64-encoded keyfile
-echo "Generating encryption keyfile..."
-openssl rand -base64 96 > "$KEYFILE_PATH"
-
-# Set secure permissions (read-only for owner)
-chmod 600 "$KEYFILE_PATH"
-
-# Verify keyfile was created
-if [ -f "$KEYFILE_PATH" ]; then
-    echo "Keyfile created successfully at: $KEYFILE_PATH"
-    echo ""
-    echo "Important notes:"
-    echo "1. Keep this keyfile secure - it's required to decrypt your data"
-    echo "2. Back up this keyfile in a secure location"
-    echo "3. Loss of this keyfile means permanent loss of encrypted data"
-    echo "4. The keyfile has been set with permissions 600 (owner read-only)"
+# Check if the key file already exists
+if [ -f "$KEY_FILE_PATH" ]; then
+  echo "Key file already exists at ${KEY_FILE_PATH}. Skipping generation."
 else
-    echo "Failed to create keyfile"
-    exit 1
+  echo "Generating new encryption key at ${KEY_FILE_PATH}..."
+  # Use openssl to generate 32 random bytes and base64 encode them
+  openssl rand -base64 32 > "$KEY_FILE_PATH"
+  
+  # Set permissions to be readable only by the owner for security
+  chmod 400 "$KEY_FILE_PATH"
+  
+  echo "Successfully generated encryption key."
 fi
+
+echo "-----------------------------------------"

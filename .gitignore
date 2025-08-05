@@ -1,0 +1,13 @@
+# Ignore directories containing sensitive or large data.
+
+# Ignore MongoDB data files.
+# This prevents committing the entire database to version control.
+/data/
+
+# Ignore encryption keys.
+# Keys should never be committed to version control for security reasons.
+/keys/
+
+# Ignore common system files
+.DS_Store
+Thumbs.db

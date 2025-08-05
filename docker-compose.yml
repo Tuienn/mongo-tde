@@ -6,7 +6,7 @@ version: "3.8"
 
 services:
   mongodb-tde:
-    image: mongodb/mongodb-enterprise-server:7.0.0-ubi8
+    image: mongodb/mongodb-enterprise-server
     container_name: mongodb-tde-instance
     restart: always
     ports:
